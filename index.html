@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DriveSmart Driving School</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <!-- Three.js for the 3D animated car -->
+
+  <style>
+    :root {
+      --slate: #14305c;
+      --slate-dark: #0b1f3f;
+      --blue: #1f6feb;
+      --orange: #ffc21a;
+      --white: #ffffff;
+      --muted: #aebbd6;
+      --card: rgba(255,255,255,.07);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--slate-dark);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+
+    /* TOP UTILITY BAR */
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 38px;
+      z-index: 110;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 5%;
+      background: #08172f;
+      color: #dbe6fb;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      font-size: .78rem;
+    }
+
+    .topbar-left,
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .topbar a:hover { color: var(--orange); }
+    .topbar b { color: white; }
+
+    /* NAVBAR */
+    nav {
+      position: fixed;
+      top: 38px;
+      width: 100%;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 5%;
+      background: rgba(11,31,63,.86);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      border: 3px solid white;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 21px;
+    }
+
+    .logo span { color: var(--orange); }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #e8eefb;
+      font-weight: 500;
+      font-size: .9rem;
+      transition: .3s;
+    }
+
+    .nav-links a:hover { color: var(--orange); }
+
+    .nav-btn, .primary-btn {
+      background: var(--blue);
+      border: 0;
+      color: white;
+      padding: 13px 22px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .3s;
+      box-shadow: 0 8px 25px rgba(31,111,235,.25);
+    }
+
+    .nav-btn:hover, .primary-btn:hover {
+      transform: translateY(-3px);
+      background: #3b82f6;
+    }
+
+    .menu-btn {
+      display: none;
+      background: none;
+      color: white;
+      border: 0;
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      padding: 155px 5% 50px;
+      display: grid;
+      grid-template-columns: 43% 57%;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 75% 45%, rgba(31,111,235,.18), transparent 30%),
+        linear-gradient(135deg, #0b1f3f 0%, #14305c 100%);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,194,26,.12);
+      right: 12%;
+      top: 18%;
+      animation: pulseRing 5s infinite ease-in-out;
+    }
+
+    @keyframes pulseRing {
+      50% { transform: scale(1.12); opacity: .4; }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      max-width: 620px;
+    }
+
+    .eyebrow {
+      color: var(--orange);
+      font-size: .95rem;
+      letter-spacing: 2px;
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 6vw, 5.8rem);
+      line-height: .98;
+      margin-bottom: 24px;
+    }
+
+    h1 span { color: var(--orange); }
+
+    .hero-text {
+      color: var(--muted);
+      font-size: 1.1rem;
+      line-height: 1.7;
+      max-width: 520px;
+      margin-bottom: 30px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .outline-btn {
+      border: 1px solid var(--orange);
+      color: white;
+      background: transparent;
+      padding: 13px 22px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .3s;
+    }
+
+    .outline-btn:hover {
+      background: var(--orange);
+      transform: translateY(-3px);
+    }
+
+    .trust-row {
+      display: flex;
+      gap: 28px;
+      margin-top: 40px;
+      color: #d6e0e0;
+      font-size: .9rem;
+    }
+
+    .trust-row strong {
+      display: block;
+      color: white;
+      font-size: 1.3rem;
+      margin-bottom: 3px;
+    }
+
+    /* HERO TRAINING TRUCK */
+    #scene {
+      position: relative;
+      overflow: hidden;
+    }
+
+    #scene canvas { position: absolute; inset: 0; z-index: 1; }
+
+    .real-car-image {
+      position: absolute;
+      z-index: 4;
+      width: min(760px, 92%);
+      height: auto;
+      left: 52%;
+      top: 48%;
+      transform: translate(-50%, -50%);
+      object-fit: contain;
+      pointer-events: none;
+      filter: drop-shadow(0 28px 20px rgba(0,0,0,.42));
+      transform-origin: center center;
+      transition: transform .15s ease-out;
+      animation: carFloat 3.5s ease-in-out infinite;
+    }
+
+    @keyframes carFloat {
+      0%, 100% {
+        margin-top: 0;
+      }
+      50% {
+        margin-top: -8px;
+      }
+    }
+
+    @media (max-width: 950px) {
+      .real-car-image {
+        width: min(650px, 100%);
+        left: 50%;
+        top: 52%;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .real-car-image {
+        width: 115%;
+        left: 50%;
+        top: 55%;
+      }
+    }
+
+    /* 3D AREA */
+    #scene {
+      width: 100%;
+      height: 650px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .scene-label {
+      position: absolute;
+      z-index: 5;
+      right: 8%;
+      top: 17%;
+      background: rgba(11,31,63,.82);
+      border: 1px solid rgba(255,255,255,.12);
+      padding: 12px 18px;
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+      font-size: .9rem;
+    }
+
+    .scene-label b { color: var(--orange); }
+
+    /* SECTIONS */
+    section:not(.hero) {
+      padding: 90px 5%;
+    }
+
+    .section-heading {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 50px;
+    }
+
+    .section-heading p {
+      color: var(--orange);
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .section-heading h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      margin-bottom: 15px;
+    }
+
+    .section-heading span {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .features {
+      background: #112a52;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 18px;
+      padding: 28px;
+      transition: .35s;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(255,194,26,.5);
+      background: rgba(255,255,255,.1);
+    }
+
+    .card-icon {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: rgba(31,111,235,.2);
+      color: var(--orange);
+      font-size: 25px;
+      margin-bottom: 20px;
+    }
+
+    .card h3 { margin-bottom: 10px; }
+
+    .card p {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: .95rem;
+    }
+
+    /* COURSES */
+    .courses {
+      background: var(--slate-dark);
+    }
+
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .course {
+      background: #14305c;
+      padding: 30px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .course h3 { margin-bottom: 12px; }
+
+    .course .price {
+      color: var(--orange);
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin: 20px 0;
+    }
+
+    .course ul {
+      list-style: none;
+      color: var(--muted);
+      line-height: 2;
+      margin-bottom: 22px;
+    }
+
+
+
+    .gallery-grid,
+    .instructor-grid,
+    .blog-grid {
+      max-width: 1100px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .gallery-item {
+      min-height: 190px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.09);
+      background: linear-gradient(145deg, #14305c, #0b1f3f);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      font-size: 3rem;
+      transition: .3s;
+    }
+
+    .gallery-item:hover { transform: translateY(-7px); border-color: rgba(255,194,26,.5); }
+    .gallery-item span { font-size: .95rem; font-weight: 700; }
+
+    .special-box {
+      max-width: 900px;
+      margin: auto;
+      padding: 35px;
+      border: 1px solid rgba(255,194,26,.35);
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(255,194,26,.08), rgba(31,111,235,.12));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 25px;
+    }
+
+    .offer-tag {
+      color: var(--orange);
+      font-size: .8rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+    }
+
+    .special-box h3 { font-size: 1.7rem; margin: 8px 0; }
+    .special-box p, .pricing-note span { color: var(--muted); line-height: 1.6; }
+
+    .pricing-note {
+      max-width: 800px;
+      margin: auto;
+      border-radius: 18px;
+      padding: 30px;
+      background: #112a52;
+      text-align: center;
+      display: grid;
+      gap: 8px;
+    }
+
+    .pricing-note strong { font-size: 2rem; color: var(--orange); }
+
+    .instructor-grid { grid-template-columns: repeat(3, 1fr); }
+
+    .instructor-card,
+    .blog-card {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 18px;
+      padding: 28px;
+    }
+
+    .avatar { font-size: 2.5rem; margin-bottom: 16px; }
+    .instructor-card h3, .blog-card h3 { margin-bottom: 10px; }
+    .instructor-card p, .blog-card p { color: var(--muted); line-height: 1.6; }
+    .blog-grid { grid-template-columns: repeat(3, 1fr); }
+    .blog-card > span { color: var(--orange); font-weight: 800; }
+    .blog-card a { display: inline-block; margin-top: 18px; color: var(--orange); font-weight: 700; }
+
+    /* FOOTER */
+    footer {
+      padding: 45px 5%;
+      background: #08172f;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      color: var(--muted);
+    }
+
+    footer strong { color: white; }
+
+    /* MODAL */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      padding: 20px;
+    }
+
+    .modal.active { display: flex; }
+
+    .modal-box {
+      width: min(520px, 100%);
+      background: #112a52;
+      border: 1px solid rgba(255,255,255,.12);
+      padding: 30px;
+      border-radius: 20px;
+      position: relative;
+    }
+
+    .close {
+      position: absolute;
+      right: 18px;
+      top: 14px;
+      border: 0;
+      background: transparent;
+      color: white;
+      font-size: 25px;
+      cursor: pointer;
+    }
+
+    .modal-box h2 { margin-bottom: 8px; }
+
+    .modal-box p {
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    form { display: grid; gap: 13px; }
+
+    input, select {
+      width: 100%;
+      padding: 14px;
+      border-radius: 9px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: #0b1f3f;
+      color: white;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--blue);
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      right: 25px;
+      bottom: 25px;
+      background: #102020;
+      border-left: 4px solid var(--orange);
+      padding: 16px 20px;
+      border-radius: 10px;
+      transform: translateX(140%);
+      transition: .4s;
+      z-index: 500;
+    }
+
+    .toast.show { transform: translateX(0); }
+
+    @media (max-width: 950px) {
+
+      .topbar { display: none; }
+      nav { top: 0; }
+      .hero { padding-top: 120px; }
+      .topbar-right { display: none; }
+      .gallery-grid, .instructor-grid, .blog-grid { grid-template-columns: 1fr; }
+      .special-box { flex-direction: column; align-items: flex-start; }
+      .nav-links {
+        position: absolute;
+        top: 78px;
+        left: 0;
+        right: 0;
+        display: none;
+        flex-direction: column;
+        background: #0b1f3f;
+        padding: 25px;
+      }
+
+      .nav-links.active { display: flex; }
+
+      .menu-btn { display: block; }
+
+      .nav-btn { display: none; }
+
+      .hero {
+        grid-template-columns: 1fr;
+        padding-top: 130px;
+      }
+
+      #scene { height: 470px; }
+
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .course-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 3.2rem; }
+      .cards { grid-template-columns: 1fr; }
+      .trust-row { gap: 16px; flex-wrap: wrap; }
+}
+
+    /* 3D WORLD */
+    #world { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
+    main, section, footer { position: relative; z-index: 1; }
+    .hero { background: transparent; }
+    .hero h1, .hero-text { text-shadow: 0 4px 30px rgba(0,0,0,.55); }
+    .features, .courses { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+    .features { background: rgba(11,31,63,.6); }
+    .courses { background: rgba(8,23,47,.62); }
+    .card, .course, .gallery-item, .instructor-card, .blog-card, .special-box, .pricing-note {
+      transform-style: preserve-3d; will-change: transform;
+      box-shadow: 0 25px 50px -20px rgba(0,0,0,.55);
+    }
+    .course { background: rgba(20,48,92,.78); }
+    .r { opacity: 0; transform: perspective(900px) rotateX(26deg) translateY(50px); }
+    .r.in { opacity: 1; transform: none; transition: transform .9s cubic-bezier(.2,.8,.2,1), opacity .9s; }
+    @media (prefers-reduced-motion: reduce) { .real-car-image { animation: none; } .r { opacity: 1; transform: none; } }
+
+    /* ICONS + LOGO */
+    .ic{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.16em;flex:none}
+    .dot{display:inline-block;width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.6;margin:0 2px;vertical-align:middle}
+    .eyebrow .dot{background:var(--orange);opacity:1;width:5px;height:5px;margin:0 8px}
+    .topbar-right span{display:inline-flex;align-items:center;gap:6px}
+    .topbar-left a{display:inline-flex;align-items:center}
+    .logo-mark{width:46px;height:46px;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}
+    .menu-btn .ic{width:26px;height:26px}
+    .close .ic{width:22px;height:22px}
+    .toast:not(.show){visibility:hidden}
+    .real-car-image{width:min(660px,92%);border-radius:20px;border:1px solid rgba(255,255,255,.14);filter:none;box-shadow:0 30px 60px -18px rgba(0,0,0,.65);animation:none}
+    @media (max-width:950px){.real-car-image{width:min(560px,92%)}}
+    @media (max-width:600px){.real-car-image{width:92%;border-radius:14px}}
+    .reel-grid{max-width:1100px;margin:22px auto 0;display:grid;grid-template-columns:1.78fr 1fr;gap:18px}
+    .reel-grid .reel{margin:0;max-width:none;display:flex}
+    .reel-grid .reel{position:relative}
+    .reel-grid .reel video{width:100%;aspect-ratio:16/9;object-fit:cover}
+    .reel-grid .reel:nth-child(2) video{position:absolute;inset:0;height:100%;aspect-ratio:auto}
+    @media (max-width:600px){.scene-label{top:auto;bottom:6%;right:auto;left:50%;transform:translateX(-50%);white-space:nowrap}}
+    @media (max-width:760px){.reel-grid{grid-template-columns:1fr}.reel-grid .reel:nth-child(2){aspect-ratio:4/5}}
+
+    .star{width:.8em;height:.8em;color:var(--orange);margin-left:4px;vertical-align:-.05em}
+    .card-icon .ic{width:26px;height:26px}
+    .avatar{width:58px;height:58px;display:grid;place-items:center;border-radius:16px;background:rgba(31,111,235,.2);color:var(--orange);margin-bottom:18px}
+    .avatar .ic{width:28px;height:28px}
+    .footer-contact{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .footer-contact .ic{color:var(--orange)}
+    .gallery-grid{max-width:1000px;grid-template-columns:1.06fr 1fr;gap:14px;align-items:stretch}
+    .gallery-item{position:relative;overflow:hidden;min-height:0;padding:0;display:block;background:#0b1f3f;font-size:1rem}
+    .gallery-item img{display:block;width:100%;height:auto;transition:transform .7s}
+    .gallery-item:hover img{transform:scale(1.04)}
+    .gallery-item::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(8,23,47,.85),rgba(8,23,47,0) 42%);pointer-events:none}
+    .gallery-item span{position:absolute;left:0;bottom:0;z-index:1;padding:14px 16px;font-size:1rem;letter-spacing:.2px}
+    .gallery-item:nth-child(1){grid-column:2;grid-row:1}
+    .gallery-item:nth-child(2){grid-column:1;grid-row:1/4}
+    .gallery-item:nth-child(2) img{position:absolute;inset:0;height:100%;object-fit:cover}
+    .gallery-item:nth-child(3){grid-column:2;grid-row:2}
+    .gallery-item:nth-child(4){grid-column:2;grid-row:3}
+    @media (max-width:760px){
+      .gallery-grid{grid-template-columns:1fr;gap:12px}
+      .gallery-item:nth-child(n){grid-column:auto;grid-row:auto}
+      .gallery-item:nth-child(2) img{position:static;height:auto}
+      .gallery-item span{font-size:.95rem;padding:12px 14px}
+    }
+    html,body{overflow-x:hidden}
+    /* BACKGROUND VIDEOS */
+    .bg-video{position:fixed;inset:0;z-index:0;background:#06132a;overflow:hidden}
+    .bg-slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease}
+    .bg-slide.on{opacity:1}
+    .bg-slide video{position:absolute;inset:0;width:100%;height:100%}
+    .bg-slide .bl{object-fit:cover;filter:blur(26px) brightness(.75);transform:scale(1.15)}
+    .bg-slide .fg{object-fit:contain}
+    @media (min-aspect-ratio:1/1){.bg-slide.land .fg{object-fit:cover}}
+    @media (max-aspect-ratio:1/1){.bg-slide.port .fg{object-fit:cover}}
+    .bg-video::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,20,44,.84) 0%,rgba(7,20,44,.56) 55%,rgba(7,20,44,.34) 100%)}
+    @media (max-width:950px){.bg-video::after{background:rgba(7,20,44,.64)}}
+    .hero{grid-template-columns:1fr}
+    .hero::before{display:none}
+    @media (max-width:600px){.hero{min-height:auto;padding:110px 6% 60px}h1{font-size:clamp(2.6rem,12vw,3.2rem)}.trust-row{gap:20px}}
+    .reel{max-width:1100px;margin:22px auto 0;position:relative;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.09);box-shadow:0 25px 50px -20px rgba(0,0,0,.55);background:#06132a}
+    .reel video{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
+    .reel-caption{position:absolute;left:0;right:0;bottom:0;padding:60px 26px 22px;background:linear-gradient(to top,rgba(8,23,47,.9),rgba(8,23,47,0))}
+    .reel-caption b{color:var(--orange);letter-spacing:2px;font-size:.8rem}
+    .reel-caption p{margin-top:4px;font-size:1.15rem;font-weight:700}
+    .blog-card{overflow:hidden}
+    .blog-img{display:block;width:calc(100% + 56px);margin:-28px -28px 20px;height:170px;object-fit:cover}
+    .blog-card a .ic{margin-left:6px;vertical-align:-.2em}
+    .course li::before{content:"";display:inline-block;width:14px;height:14px;margin-right:10px;vertical-align:-2px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffc21a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/contain no-repeat}
+
+    /* THEME: navy, blue and yellow */
+    body{font-family:'Inter','Segoe UI',Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased}
+    h1,h2,h3{letter-spacing:-.02em}
+    .nav-btn{background:var(--orange);color:#0b1f3f;box-shadow:0 8px 25px rgba(255,194,26,.25)}
+    .nav-btn:hover{background:#ffd54d}
+    .primary-btn{box-shadow:0 8px 25px rgba(31,111,235,.35)}
+    .outline-btn{color:#fff}
+    .outline-btn:hover{color:#0b1f3f}
+    .logo-mark{width:48px;height:48px;border-radius:12px;background:#fff;padding:2px;object-fit:contain;filter:none;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+    .gallery-item:nth-child(2){background:#fefefe}
+    .gallery-item:nth-child(2) img{object-fit:contain;padding:18px}
+    .gallery-item:nth-child(2)::after{display:none}
+    .gallery-item:nth-child(2) span{left:0;right:0;background:linear-gradient(90deg,#0b1f3f,#14305c);color:#fff;border-top:3px solid #ffc21a;padding:14px 18px}
+    @media (max-width:760px){.gallery-item:nth-child(2) img{padding:14px 14px 64px}}
+</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+</head>
+
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+<symbol id="i-cap" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></symbol>
+<symbol id="i-car" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M9 17h6"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+<symbol id="i-arrow-ur" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></symbol>
+<symbol id="i-fb" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M4 4l16 16M20 4 4 20"/></symbol>
+<symbol id="i-in" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/><path d="M12 14v8M10.2 11 2.4 9.6M13.8 11l7.8-1.4"/></symbol>
+<symbol id="i-seat" viewBox="0 0 24 24"><path d="M7 3v9a2 2 0 0 0 2 2h8M7 3H5M17 14l2 6M9 14l-1 7"/><path d="M13 3h4"/></symbol>
+<symbol id="i-pedal" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h6"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24"><path d="M6 4v16M12 4v16M18 4v16M6 12h12"/><circle cx="6" cy="4" r="1.2"/><circle cx="12" cy="4" r="1.2"/><circle cx="18" cy="4" r="1.2"/></symbol>
+<symbol id="i-park" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/></symbol>
+<symbol id="i-uturn" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></symbol>
+<symbol id="i-reverse" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+<symbol id="i-light" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="20" rx="2"/><circle cx="12" cy="7" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="12" cy="17" r="1.3"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><path d="M7.9 2h8.2L22 7.9v8.2L16.1 22H7.9L2 16.1V7.9z"/><path d="M8 12h8"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></symbol>
+<symbol id="i-usercheck" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></symbol>
+<symbol id="i-road" viewBox="0 0 24 24"><path d="M4 22 9 2M20 22 15 2M12 6v2M12 12v2M12 18v2"/></symbol>
+</defs></svg>
+  <div class="bg-video" aria-hidden="true">
+    <div class="bg-slide land on">
+      <video class="bl" muted playsinline preload="auto" poster="images/road-front-poster.jpg"><source src="road-front.mp4" type="video/mp4"></video>
+      <video class="fg" muted playsinline preload="auto" poster="images/road-front-poster.jpg"><source src="road-front.mp4" type="video/mp4"></video>
+    </div>
+    <div class="bg-slide port">
+      <video class="bl" muted playsinline preload="metadata" poster="images/highway-traffic-poster.jpg"><source src="highway-traffic.mp4" type="video/mp4"></video>
+      <video class="fg" muted playsinline preload="metadata" poster="images/highway-traffic-poster.jpg"><source src="highway-traffic.mp4" type="video/mp4"></video>
+    </div>
+  </div>
+
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <a href="#about">About</a>
+      <span class="dot"></span>
+      <a href="#blog">Blog</a>
+      <span class="dot"></span>
+      <a href="learn.html">FAQ</a>
+      <span class="dot"></span>
+      <a href="#" aria-label="Facebook"><svg class="ic " aria-hidden="true"><use href="#i-fb"/></svg></a>
+      <a href="#" aria-label="X"><svg class="ic " aria-hidden="true"><use href="#i-x"/></svg></a>
+      <a href="#" aria-label="LinkedIn"><svg class="ic " aria-hidden="true"><use href="#i-in"/></svg></a>
+    </div>
+    <div class="topbar-right">
+      <span><svg class="ic " aria-hidden="true"><use href="#i-chat"/></svg> <b>Chat Now</b></span>
+      <span><svg class="ic " aria-hidden="true"><use href="#i-phone"/></svg> +27 12345678</span>
+      <span><svg class="ic " aria-hidden="true"><use href="#i-mail"/></svg> support@drivesmart.co.za</span>
+    </div>
+  </div>
+
+  <nav>
+    <a href="#home" class="logo">
+      <img class="logo-mark" src="logo.png" alt="DriveSmart logo" width="46" height="46">
+      Drive<span>Smart</span>
+    </a>
+
+    <button class="menu-btn" onclick="toggleMenu()" aria-label="Menu"><svg class="ic " aria-hidden="true"><use href="#i-menu"/></svg></button>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#courses">Courses</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#specials">Specials</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#instructors">Instructors</a></li>
+      <li><a href="learn.html">Learn</a></li>
+      <li><a href="#blog">Blog</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+
+    <button class="nav-btn" onclick="openBooking()">Book a Lesson</button>
+  </nav>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="hero-content">
+        <div class="eyebrow">SAFE DRIVING<span class="dot"></span>FOR LIFE</div>
+
+        <h1>Drive Today.<br><span>Lead Tomorrow.</span></h1>
+
+        <p class="hero-text">
+          Professional driving lessons for beginners and advanced learners.
+          Learn with experienced instructors, modern training vehicles and a
+          safety-first approach.
+        </p>
+
+        <div class="hero-buttons">
+          <button class="primary-btn" onclick="openBooking()">Book a Lesson</button>
+          <button class="outline-btn" onclick="document.querySelector('#courses').scrollIntoView()">View Courses</button>
+        </div>
+
+        <div class="trust-row">
+          <div><strong>500+</strong>Students trained</div>
+          <div><strong>98%</strong>Pass confidence</div>
+          <div><strong>5.0<svg class="ic star" aria-hidden="true"><use href="#i-star"/></svg></strong>Student rating</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="section-heading">
+        <p>WHY CHOOSE US</p>
+        <h2>More Than Just Driving Lessons</h2>
+        <span>We help learners become confident, responsible and safety-conscious drivers.</span>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon"><svg class="ic " aria-hidden="true"><use href="#i-shield"/></svg></div>
+          <h3>Safety First</h3>
+          <p>Training vehicles are designed around learner safety, with modern safety features and comfortable controls.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon"><svg class="ic " aria-hidden="true"><use href="#i-cap"/></svg></div>
+          <h3>Expert Instructors</h3>
+          <p>Learn from patient, experienced instructors who adapt lessons to your confidence and ability.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon"><svg class="ic " aria-hidden="true"><use href="#i-car"/></svg></div>
+          <h3>Modern Vehicles</h3>
+          <p>Practice in clean, comfortable vehicles suitable for developing real-world driving skills.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon"><svg class="ic " aria-hidden="true"><use href="#i-cal"/></svg></div>
+          <h3>Flexible Lessons</h3>
+          <p>Choose lesson times that work around your school, work and personal schedule.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="courses" id="courses">
+      <div class="section-heading">
+        <p>OUR COURSES</p>
+        <h2>Choose Your Driving Plan</h2>
+        <span>Simple packages for learners at different stages.</span>
+      </div>
+
+      <div class="course-grid">
+        <div class="course">
+          <h3>Beginner</h3>
+          <p>Start from the basics and build confidence behind the wheel.</p>
+          <div class="price">R650</div>
+          <ul>
+            <li>5 driving lessons</li>
+            <li>Basic vehicle control</li>
+            <li>Road safety</li>
+            <li>Instructor feedback</li>
+          </ul>
+          <button class="primary-btn" onclick="openBooking('Beginner')">Choose Plan</button>
+        </div>
+
+        <div class="course">
+          <h3>Road Ready</h3>
+          <p>Structured training for learners preparing for their practical test.</p>
+          <div class="price">R1,200</div>
+          <ul>
+            <li>10 driving lessons</li>
+            <li>Traffic awareness</li>
+            <li>Parking practice</li>
+            <li>Test preparation</li>
+          </ul>
+          <button class="primary-btn" onclick="openBooking('Road Ready')">Choose Plan</button>
+        </div>
+
+        <div class="course">
+          <h3>Test Prep</h3>
+          <p>Focused preparation for learners who are almost ready for their test.</p>
+          <div class="price">R850</div>
+          <ul>
+            <li>5 intensive lessons</li>
+            <li>Mock test</li>
+            <li>Error correction</li>
+            <li>Final assessment</li>
+          </ul>
+          <button class="primary-btn" onclick="openBooking('Test Prep')">Choose Plan</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" style="background:#112a52;">
+      <div class="section-heading">
+        <p>ABOUT DRIVESMART</p>
+        <h2>Building Better Drivers</h2>
+        <span>
+          Our goal is not simply to help learners pass a driving test.
+          We teach the habits, awareness and confidence needed for safer everyday driving.
+        </span>
+      </div>
+    </section>
+  </main>
+
+
+    <section id="gallery" style="background:#0b1f3f;">
+      <div class="section-heading">
+        <p>OUR GALLERY</p>
+        <h2>Training In Action</h2>
+        <span>Explore our training environment, learner vehicles and practical driving sessions.</span>
+      </div>
+      <div class="gallery-grid">
+        <div class="gallery-item"><img src="road-vehicles.jpg" alt="Training Vehicles" loading="lazy"><span>Training Vehicles</span></div>
+        <div class="gallery-item"><img src="road-parking.jpg" alt="Parking Practice" loading="lazy"><span>Parking Practice</span></div>
+        <div class="gallery-item"><img src="road-highway.jpg" alt="Road Training" loading="lazy"><span>Road Training</span></div>
+        <div class="gallery-item"><img src="road-junction.jpg" alt="Test Preparation" loading="lazy"><span>Test Preparation</span></div>
+      </div>
+    </section>
+
+    <section id="specials" style="background:#112a52;">
+      <div class="section-heading">
+        <p>SPECIAL OFFERS</p>
+        <h2>Learn More. Save More.</h2>
+        <span>Ask about learner packages, referral discounts and selected seasonal offers.</span>
+      </div>
+      <div class="special-box">
+        <div>
+          <span class="offer-tag">LEARNER SPECIAL</span>
+          <h3>Book multiple lessons and save</h3>
+          <p>Choose a package that gives you more time behind the wheel while keeping your training affordable.</p>
+        </div>
+        <button class="primary-btn" onclick="openBooking()">Ask About Offers</button>
+      </div>
+    </section>
+
+    <section id="pricing" style="background:#0b1f3f;">
+      <div class="section-heading">
+        <p>PRICING</p>
+        <h2>Simple, Transparent Packages</h2>
+        <span>No confusing plans. Choose the training package that matches your current level.</span>
+      </div>
+      <div class="pricing-note">
+        <strong>Starting from R650</strong>
+        <span>Contact us for the latest package prices and availability.</span>
+      </div>
+    </section>
+
+    <section id="instructors" style="background:#112a52;">
+      <div class="section-heading">
+        <p>OUR INSTRUCTORS</p>
+        <h2>Patient. Professional. Supportive.</h2>
+        <span>Our instructors focus on building safe driving habits and learner confidence.</span>
+      </div>
+      <div class="instructor-grid">
+        <div class="instructor-card"><div class="avatar"><svg class="ic " aria-hidden="true"><use href="#i-users"/></svg></div><h3>Experienced Instructors</h3><p>Structured lessons for beginners and learners preparing for their practical test.</p></div>
+        <div class="instructor-card"><div class="avatar"><svg class="ic " aria-hidden="true"><use href="#i-usercheck"/></svg></div><h3>Personalised Coaching</h3><p>Lessons are adjusted to your pace so you can improve without unnecessary pressure.</p></div>
+        <div class="instructor-card"><div class="avatar"><svg class="ic " aria-hidden="true"><use href="#i-road"/></svg></div><h3>Practical Training</h3><p>Focus on real road situations, observation, manoeuvres and responsible decision-making.</p></div>
+      </div>
+    </section>
+
+    <section id="blog" style="background:#0b1f3f;">
+      <div class="section-heading">
+        <p>DRIVING BLOG</p>
+        <h2>Tips For New Drivers</h2>
+        <span>Helpful advice on confidence, road awareness, preparation and responsible driving.</span>
+      </div>
+      <div class="blog-grid">
+        <article class="blog-card"><img class="blog-img" src="road-dusk.jpg" alt="Open road at sunset" loading="lazy"><span>01</span><h3>Building Confidence Behind the Wheel</h3><p>Small habits that make practice sessions more productive.</p></article>
+        <article class="blog-card"><img class="blog-img" src="road-junction.jpg" alt="Junction with crossing and traffic light" loading="lazy"><span>02</span><h3>Preparing for Your Driving Test</h3><p>What to practise before your test and how to avoid common mistakes.</p></article>
+        <article class="blog-card"><img class="blog-img" src="road-cones.jpg" alt="Training cones on the road" loading="lazy"><span>03</span><h3>Learn Before You Drive</h3><p>Use our Learn page to review basic concepts and watch practical demonstrations.</p><a href="learn.html">Go to Learn<svg class="ic " aria-hidden="true"><use href="#i-arrow"/></svg></a></article>
+      </div>
+    </section>
+
+  <footer id="contact">
+    <div><strong>DriveSmart Driving School</strong><br>Professional driver training.</div>
+    <div class="footer-contact"><svg class="ic " aria-hidden="true"><use href="#i-phone"/></svg> 012 345 6789 <span class="dot"></span> <svg class="ic " aria-hidden="true"><use href="#i-mail"/></svg> info@drivesmart.co.za</div>
+    <div>© 2026 DriveSmart</div>
+  </footer>
+
+  <!-- BOOKING MODAL -->
+  <div class="modal" id="bookingModal">
+    <div class="modal-box">
+      <button class="close" onclick="closeBooking()" aria-label="Close"><svg class="ic " aria-hidden="true"><use href="#i-x"/></svg></button>
+      <h2>Book a Driving Lesson</h2>
+      <p>Fill in your details and we will contact you to confirm your lesson.</p>
+
+      <form id="bookingForm">
+        <input id="name" type="text" placeholder="Full name" required />
+        <input id="phone" type="tel" placeholder="Phone number" required />
+        <input id="email" type="email" placeholder="Email address" required />
+
+        <select id="course" required>
+          <option value="">Select a course</option>
+          <option>Beginner</option>
+          <option>Road Ready</option>
+          <option>Test Prep</option>
+        </select>
+
+        <input id="date" type="date" required />
+        <button class="primary-btn" type="submit">Send Booking Request</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* MOBILE MENU */
+    function toggleMenu() {
+      document.getElementById("navLinks").classList.toggle("active");
+    }
+
+    /* BOOKING */
+    function openBooking(courseName = "") {
+      document.getElementById("bookingModal").classList.add("active");
+
+      if (courseName) {
+        document.getElementById("course").value = courseName;
+      }
+    }
+
+    function closeBooking() {
+      document.getElementById("bookingModal").classList.remove("active");
+    }
+
+    document.getElementById("bookingModal").addEventListener("click", function(e) {
+      if (e.target === this) closeBooking();
+    });
+
+    document.getElementById("bookingForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const email = document.getElementById("email").value;
+      const course = document.getElementById("course").value;
+      const date = document.getElementById("date").value;
+
+      /*
+        For a real business:
+        Replace this with Firebase, EmailJS or a WhatsApp booking system.
+      */
+
+      const message =
+        `Hello DriveSmart!%0A%0A` +
+        `I would like to book a driving lesson.%0A` +
+        `Name: ${encodeURIComponent(name)}%0A` +
+        `Phone: ${encodeURIComponent(phone)}%0A` +
+        `Email: ${encodeURIComponent(email)}%0A` +
+        `Course: ${encodeURIComponent(course)}%0A` +
+        `Preferred date: ${encodeURIComponent(date)}`;
+
+      // Replace 27123456789 with the school's real WhatsApp number.
+      const whatsappNumber = "27123456789";
+      window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank");
+
+      closeBooking();
+      showToast("Booking request prepared. WhatsApp will open now.");
+      this.reset();
+    });
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 4000);
+    }
+
+    /* SCROLL-DRIVEN 3D ROAD */
+    /* BACKGROUND VIDEOS: play one after the other */
+    (function(){
+      const slides=[...document.querySelectorAll(".bg-slide")]; if(!slides.length) return;
+      const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const vids=s=>s.querySelectorAll("video");
+      function show(n){
+        slides.forEach((s,k)=>{
+          if(k===n){ s.classList.add("on"); vids(s).forEach(v=>{ try{v.currentTime=0;}catch(e){} const p=v.play(); if(p&&p.catch)p.catch(()=>{}); }); }
+          else { s.classList.remove("on"); setTimeout(()=>{ if(!s.classList.contains("on")) vids(s).forEach(v=>v.pause()); },1400); }
+        });
+      }
+      slides.forEach((s,k)=>s.querySelector(".fg").addEventListener("ended",()=>show((k+1)%slides.length)));
+      if(!reduce) show(0);
+      document.addEventListener("visibilitychange",()=>{ const on=slides.find(s=>s.classList.contains("on")); if(!on||reduce) return; vids(on).forEach(v=>{ if(document.hidden) v.pause(); else { const p=v.play(); if(p&&p.catch)p.catch(()=>{}); }}); });
+    })();
+
+    /* 3D CARD TILT + FLIP-UP REVEAL */
+    const tiltSel=".card,.course,.gallery-item,.instructor-card,.blog-card,.special-box,.pricing-note";
+    document.querySelectorAll(tiltSel).forEach(el=>{
+      el.addEventListener("pointermove",e=>{
+        const r=el.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+        el.style.transform=`perspective(700px) rotateY(${x*12}deg) rotateX(${-y*12}deg) translateZ(8px)`;
+      });
+      el.addEventListener("pointerleave",()=>{ el.style.transform=""; });
+    });
+    if("IntersectionObserver" in window){
+      const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){
+        e.target.classList.add("in"); io.unobserve(e.target);
+        setTimeout(()=>e.target.classList.remove("r","in"),1000); }}),{threshold:.15});
+      document.querySelectorAll(tiltSel).forEach(el=>{ el.classList.add("r"); io.observe(el); });
+    }
+  </script>
+</body>
+</html>
